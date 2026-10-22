@@ -93,3 +93,10 @@ $('reset').onclick=()=>{if(confirm('Reset all knobs to desk defaults?')){LS.remo
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab,nav button').forEach(x=>x.classList.remove('on'));$(b.dataset.t).classList.add('on');b.classList.add('on');});
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 paintK();refresh();setInterval(refresh,5*60e3);
+// ---------- launch splash (once per launch; UI only) ----------
+(function(){const sp=$('splash'),fl=$('flyer'),dk=$('dock');
+ const done=()=>{dk.classList.add('on');sp.remove();};
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches)return done();
+ setTimeout(()=>{const a=fl.getBoundingClientRect(),b=dk.getBoundingClientRect();
+  const dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-(a.top+a.height/2),k=b.width/a.width;
+  sp.classList.add('fly');fl.style.transform=`translate(${dx}px,${dy}px) scale(${k})`;setTimeout(done,620);},1750);})();

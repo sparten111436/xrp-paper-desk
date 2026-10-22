@@ -34,3 +34,15 @@ body{font-size:18px;line-height:1.45}
 .tradebar .row{gap:14px}.tradebar button{min-height:56px;font-size:19px;font-weight:700;border-radius:16px;margin:5px 0}
 button.long{background:#1f8a4c}button.short{background:#b8432f}button.ghost{background:#26365a}
 nav button{min-height:52px;font-size:15px}
+/* ---- launch coin splash ---- */
+.ttl{display:flex;align-items:center;gap:10px}.dock{width:30px;height:30px;display:inline-block;opacity:0;border-radius:50%;position:relative;overflow:hidden}
+.dock svg,.spin svg{width:100%;height:100%;display:block}.dock.on{opacity:1}
+.dock.on::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,#fff8 50%,transparent 65%);transform:translateX(-120%);animation:shimmer 5s ease-in-out 1s infinite}
+@keyframes shimmer{0%,80%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+#splash{position:fixed;inset:0;z-index:50;background:#0b1220;display:flex;align-items:center;justify-content:center;perspective:700px;transition:background .5s}
+#splash.fly{background:transparent;pointer-events:none}
+.flyer{width:170px;height:170px;transition:transform .6s cubic-bezier(.5,0,.2,1)}
+.spin{width:100%;height:100%;animation:coinspin 1.7s cubic-bezier(.3,.1,.3,1) forwards;transform-style:preserve-3d;filter:drop-shadow(0 18px 24px #000a)}
+@keyframes coinspin{from{transform:rotateY(0)}to{transform:rotateY(1080deg)}}
+@media (prefers-reduced-motion:reduce){#splash{display:none}.dock{opacity:1}.dock.on::after{animation:none}}
+.ttl b{white-space:nowrap}
