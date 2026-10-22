@@ -1,4 +1,4 @@
-const V='v4',C='xrp-paper-'+V,F=['./','index.html','style.css?v=4','logic.js?v=4','app.js?v=4','manifest.json','icon-180.png'];
+const V='v5',C='xrp-paper-'+V,F=['./','index.html','style.css?v=5','logic.js?v=5','app.js?v=5','manifest.json','icon-180.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(u=>new Request(u,{cache:'reload'})))))});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
 // network-first for pages + code; cache only as offline fallback

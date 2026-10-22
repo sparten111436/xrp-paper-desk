@@ -40,9 +40,9 @@ function render(){const C=XL.getConfig(),sh=shockNow();
  $('chipBTC').className='chip';
  const p=S.pos;$('pos').innerHTML=p?`${p.side.toUpperCase()} ${f(p.qty,1)} XRP @ ${f(p.entry)} · stop ${f(p.stop)} · opened ${new Date(p.t).toLocaleString()}`:`Flat · NAV $${f(S.nav,2)} (fake)`;
  renderNews();renderJournal();}
-function psychOk(){const bad=[...document.querySelectorAll('#checks input')].filter(c=>c.dataset.need==='yes'?!c.checked:c.checked);
+function psychOk(){const bad=[...document.querySelectorAll('#checks input,#checksYes input')].filter(c=>c.dataset.need==='yes'?!c.checked:c.checked);
  const emo=$('emo').value;if(emo==='revenge'||emo==='excited')bad.push({dataset:{l:'emotion: '+emo}});
- $('psychMsg').textContent=bad.length?'Not clear: '+bad.map(b=>b.dataset.l).join('; '):'Checklist clear.';return bad.length===0;}
+ $('psychMsg').textContent=bad.length?'Not clear: '+bad.map(b=>b.dataset.l).join('; '):'✅ Checklist clear';$('psychMsg').className='msg big2 '+(bad.length?'bad':'ok');return bad.length===0;}
 function open(side){if(S.pos)return alert('One ticket max.');if(!M.XRP||!M.atr)return alert('No live price/ATR — n/a, no trade.');
  if(!psychOk())return alert('Psych checklist not clear → default FLAT. See Psych tab.');
  const C=XL.getConfig(),d=C.atrMult*M.atr,z=XL.size(S.nav,M.XRP,d);
@@ -62,16 +62,19 @@ $('addNews').onclick=()=>{const h=$('nh').value.trim();if(!h)return;const it={he
  if(!it.counts){it.scary=false;} S.news.push(it);persist();
  $('newsMsg').textContent=it.dupeOf?'Duplicate of an earlier story — counted once, no action.':!it.counts?'Not XRP-relevant and no market shock → log only, no action.':it.scary?`Counts. ${XL.getConfig().coolOffMin}-min no-panic-exit cool-off started.`:'Counts (logged).';
  $('nh').value=$('nu').value='';render();};
-function renderNews(){$('newsList').innerHTML=S.news.slice(-30).reverse().map(n=>`<div class="j">${n.headline}<br><span class="small">${new Date(n.ms).toLocaleString()} · ${n.rel}${n.dupeOf?' · DUPE':''}${n.scary?' · scary':''}${n.counts?'':' · log-only'}</span></div>`).join('')||'<span class="small">No headlines yet.</span>';}
+function renderNews(){$('newsList').innerHTML=S.news.slice(-30).reverse().map(n=>`<div class="trow"><div>${n.headline}<small>${new Date(n.ms).toLocaleString()} · ${n.rel}${n.dupeOf?' · DUPE':''}${n.scary?' · scary':''}${n.counts?'':' · log-only'}</small></div></div>`).join('')||'<div class="empty">No headlines yet.</div>';}
 // ---------- psych ----------
 const CHECKS=[['Rules-based primary catalyst with a source URL (not a tip/post/clip)','yes'],['Stop and exit path written before entry','yes'],['Unlock headline only / ETF rumor / ETF holdings as demand','no'],
  ['Chasing a bounce, flush or squeeze','no'],['Moon target / social-proof post','no'],['Within 3 sessions of a panic exit (revenge risk)','no'],['Sizing up during a flush / adding to a loser','no']];
-$('checks').innerHTML=CHECKS.map(([l,n],i)=>`<label><input type="checkbox" data-need="${n}" data-l="${l}"> ${n==='yes'?'✅ ':'⚠️ '}${l}</label><br>`).join('');
+const row=([l,n])=>`<label class="tog"><span><b>${l}</b></span><input type="checkbox" data-need="${n}" data-l="${l}"><i></i></label>`;
+$('checksYes').innerHTML=CHECKS.filter(c=>c[1]==='yes').map(row).join('');$('checks').innerHTML=CHECKS.filter(c=>c[1]==='no').map(row).join('');
+$('checksYes').onchange=psychOk;
 $('checks').onchange=psychOk;$('emo').onchange=psychOk;
 // ---------- journal ----------
 function renderJournal(){const J=S.journal,w=J.filter(j=>j.net>0).length,net=J.reduce((a,j)=>a+j.net,0),fees=J.reduce((a,j)=>a+j.fees,0);
- $('stats').innerHTML=`Trades ${J.length} · fee-net W/L ${w}/${J.length-w} · Net $${f(net,2)} · Fees $${f(fees,2)} · NAV $${f(S.nav,2)} (fake)<br><span class="small">Build '+APP_VERSION+' · edge_claimed=false — W/L is a record, not proof of an edge.</span>`;
- $('jlist').innerHTML=J.slice().reverse().map(j=>`<div class="j ${j.net>0?'win':'loss'}">${j.side} ${f(j.entry)}→${f(j.exit)} net $${f(j.net,2)} (fees $${f(j.fees,2)}) · ${j.why}</div>`).join('');}
+ const st=(l,v,c='')=>`<div class="stat ${c}"><small>${l}</small><b>${v}</b></div>`;
+ $('stats').innerHTML=st('NAV (fake)','$'+f(S.nav,2))+st('Net P/L','$'+f(net,2),net>0?'up':net<0?'dn':'')+st('W – L (fee-net)',w+' – '+(J.length-w))+st('Fees paid','$'+f(fees,2))+`<div class="note">${J.length} trades · Build ${APP_VERSION} · edge_claimed=false — a record, not proof of an edge.</div>`;
+ $('jlist').innerHTML=J.slice().reverse().map(j=>`<div class="trow"><div><b>${j.side.toUpperCase()}</b> ${f(j.entry)} → ${f(j.exit)}<small>${new Date(j.close).toLocaleString()} · ${j.why}</small></div><div class="${j.net>0?'up':'dn'}">$${f(j.net,2)}<small>fees $${f(j.fees,2)}</small></div></div>`).join('')||'<div class="empty">No paper trades yet.</div>';}
 $('exportJ').onclick=()=>{const h='open,close,side,entry,exit,qty,gross,fees,net,why,emo';const csv=[h,...S.journal.map(j=>h.split(',').map(k=>JSON.stringify(j[k]??'')).join(','))].join('\n');navigator.clipboard?.writeText(csv);alert('Journal copied.');};
 // ---------- knobs ----------
 const KN=[['coolOffMin','Dire-news cool-off (min)',0,240,5,'dial'],['shockBtcPct','Shock: BTC drop %',1,10,0.5,'dial'],['shockXrpPct','Shock: XRP drop %',1,15,0.5,'dial'],['shockSpxPct','Shock: S&P fut drop %',0.5,5,0.1,'dial'],
@@ -91,7 +94,7 @@ $('s_shorts').onchange=e=>setK('shortsEnabled',e.target.checked);
 $('reset').onclick=()=>{if(confirm('Reset all knobs to desk defaults?')){LS.removeItem('knobs');XL.setConfig({});paintK();render();}};
 // ---------- nav / boot ----------
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab,nav button').forEach(x=>x.classList.remove('on'));$(b.dataset.t).classList.add('on');b.classList.add('on');});
-const APP_VERSION='v4';
+const APP_VERSION='v5';
 if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update();document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update();});});
  let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded||sessionStorage.getItem('swr')===APP_VERSION)return;reloaded=true;sessionStorage.setItem('swr',APP_VERSION);location.reload();});}
 paintK();refresh();setInterval(refresh,5*60e3);
@@ -102,3 +105,5 @@ paintK();refresh();setInterval(refresh,5*60e3);
  setTimeout(()=>{const a=fl.getBoundingClientRect(),b=dk.getBoundingClientRect();
   const dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-(a.top+a.height/2),k=b.width/a.width;
   sp.classList.add('fly');fl.style.transform=`translate(${dx}px,${dy}px) scale(${k})`;setTimeout(done,620);},1750);})();
+// open a tab from #hash (e.g. #journal) — UI only
+(function(){const t=location.hash.replace("#t=","");psychOk();const b=document.querySelector(`nav button[data-t="${t}"]`);if(b)b.click();})();

@@ -46,3 +46,25 @@ nav button{min-height:52px;font-size:15px}
 @keyframes coinspin{from{transform:rotateY(0)}to{transform:rotateY(1080deg)}}
 @media (prefers-reduced-motion:reduce){#splash{display:none}.dock{opacity:1}.dock.on::after{animation:none}}
 .ttl b{white-space:nowrap}
+/* ---- v5 tabs ---- */
+.tab{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+.ph{margin:18px 20px 6px}.ph h1{font-size:28px;margin:0 0 4px}.ph p{margin:0;color:#a9bbd9;font-size:16px}
+.card{margin:14px 16px;padding:18px;border-radius:18px}.pad{margin:18px 20px 6px}
+.sec{margin:14px 16px;background:#141f36;border-radius:16px;padding:4px 18px}
+.tog{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:60px;padding:14px 16px;margin:10px 0;background:#1b2945;border-radius:14px;cursor:pointer}
+.tab>.tog,#checks .tog,#checksYes .tog{margin:10px 16px}
+.tog span{flex:1;font-size:17px}.tog small{display:block;color:#a9bbd9;font-size:14px;font-weight:400;margin-top:2px}
+.tog input{position:absolute;opacity:0;width:0;height:0}
+.tog i{flex:none;width:54px;height:32px;border-radius:999px;background:#3a4a6b;position:relative;transition:.2s}
+.tog i::after{content:'';position:absolute;left:3px;top:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:.2s}
+.tog input:checked+i{background:#1f8a4c}.tog input:checked+i::after{left:25px}
+#checks .tog input:checked+i{background:#b8432f}
+button.cta{width:100%;min-height:56px;font-size:19px;font-weight:700;border-radius:16px;margin-top:12px}
+.msg{margin:10px 0 0;font-size:16px;color:#c9d6ee}.big2{margin:12px 16px;padding:14px 16px;border-radius:14px;font-weight:600;background:#1b2945}
+.big2.ok{background:#173d24;color:#bff5cc}.big2.bad{background:#5a1a1a;color:#ffd3d3}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 16px}
+.stat{background:#141f36;border-radius:18px;padding:18px}.stat small{display:block;color:#a9bbd9;font-size:14px;text-transform:uppercase;letter-spacing:.05em}.stat b{font-size:26px}
+.stat.up b,.up{color:#7ee08f}.stat.dn b,.dn{color:#ff9a9a}.note{grid-column:1/-1;font-size:14px;color:#a9bbd9}
+.trow{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-top:1px solid #26365a;font-size:17px}.trow small{display:block;font-size:14px;color:#a9bbd9}
+.trow>div:last-child{text-align:right;font-weight:700}.empty{padding:16px 0;color:#a9bbd9}
+#knobs .knob{font-size:17px;margin:16px 0}
