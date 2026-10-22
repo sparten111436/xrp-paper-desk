@@ -3,7 +3,10 @@
 const FEE_BPS_SIDE=20, EDGE_CLAIMED=false, BANKROLL=1000;
 const DEFAULTS={feeBpsSide:20,stressBpsSide:20,slippageBps:0,riskPct:1,grossCapPct:25,atrMult:2.0,trailAtrMult:2.0,breakevenR:1.0,
   timeStopSessions:5,coolOffMin:60,shockBtcPct:3.0,shockXrpPct:4.0,shockSpxPct:1.5,shockWindowH:4,volTrapH:4,volTrapZ:3,killLosers:5,
-  cooldownH:24,bankroll:1000,shortsEnabled:true,etfStreakDays:3};
+  cooldownH:24,bankroll:1000,shortsEnabled:true,etfStreakDays:3,feeVenue:'desk',publicFeeBpsSide:60,publicSpreadBps:15};
+// Public venue (RULES-v1.3, Warren 2026-10-22): 60 bps/side API fee + spread (round trip) => 135 bps RT default
+function sideBps(venue){const C=CFG;return (venue||C.feeVenue)==='public'?C.publicFeeBpsSide+C.publicSpreadBps/2:C.feeBpsSide;}
+function publicSized(entry,stop,target,atrDaily){const d=Math.abs(entry-stop),rt=(2*CFG.publicFeeBpsSide+CFG.publicSpreadBps)/1e4;return !!atrDaily&&d>=1.5*atrDaily&&Math.abs(target-entry)/entry>=3*rt;}
 let CFG=Object.assign({},DEFAULTS);
 function setConfig(c){CFG=Object.assign({},DEFAULTS,c||{});return CFG;} function getConfig(){return CFG;}
 const SHOCK_TH={get BTC(){return -CFG.shockBtcPct},get XRP(){return -CFG.shockXrpPct},get SPX(){return -CFG.shockSpxPct}};
@@ -45,7 +48,7 @@ function exitAllowed({nowMs,lastScaryMs,stopHit,xrpSpecificHighSev,marketShock})
   if(lastScaryMs!=null&&nowMs-lastScaryMs<CFG.coolOffMin*60000){const m=Math.ceil((CFG.coolOffMin*60000-(nowMs-lastScaryMs))/60000);return {ok:false,why:`cool-off: ${m} min left — panic exit blocked (would be tagged panic_exit)`};}
   return {ok:true,why:'outside cool-off (exit only on stop/time/thesis)'};}
 // fee math: 20 bps per side, netted
-function tradePnl({side,entry,exit,qty,feeBps=CFG.feeBpsSide+CFG.slippageBps}){const gross=(side==='long'?exit-entry:entry-exit)*qty;
+function tradePnl({side,entry,exit,qty,feeBps=sideBps()+CFG.slippageBps}){const gross=(side==='long'?exit-entry:entry-exit)*qty;
   const fees=(entry*qty+exit*qty)*feeBps/10000;const net=gross-fees;return {gross,fees,net,win:net>0};}
 function atr(bars,n=14){if(bars.length<n+1)return null;const tr=[];for(let i=1;i<bars.length;i++){const[h,l,pc]=[bars[i].h,bars[i].l,bars[i-1].c];tr.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));}
   let a=tr.slice(0,n).reduce((x,y)=>x+y)/n;for(let i=n;i<tr.length;i++)a=(a*(n-1)+tr[i])/n;return a;}
@@ -65,6 +68,6 @@ function bestGuess({price,atr14,btcLongOk,btcRiskOff,catalyst,shock,inSkip,openP
   return out;}
 const SKIP=[['FOMC','2026-10-27','2026-10-28']];
 function inSkip(dateStr){const s=SKIP.find(([n,a,b])=>a<=dateStr&&dateStr<=b);return s?s[0]:'';}
-const api={DEFAULTS,setConfig,getConfig,FEE_BPS_SIDE,EDGE_CLAIMED,BANKROLL,SHOCK_TH,priceShock,chg4h,relevance,counts,toks,jacc,findDupe,exitAllowed,tradePnl,atr,size,bestGuess,SKIP,inSkip};
+const api={DEFAULTS,sideBps,publicSized,setConfig,getConfig,FEE_BPS_SIDE,EDGE_CLAIMED,BANKROLL,SHOCK_TH,priceShock,chg4h,relevance,counts,toks,jacc,findDupe,exitAllowed,tradePnl,atr,size,bestGuess,SKIP,inSkip};
 if(typeof module!=='undefined')module.exports=api;else root.XL=api;
 })(this);

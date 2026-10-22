@@ -25,3 +25,6 @@ test('knob: ATR mult 2->3 widens stop; trail knob',()=>{L.setConfig({atrMult:3,t
 test('knob: fee bps and risk %',()=>{L.setConfig({feeBpsSide:50});A.ok(Math.abs(L.tradePnl({side:'long',entry:1,exit:1,qty:100}).fees-1)<1e-9);
  L.setConfig({riskPct:2});A.ok(Math.abs(L.size(1000,1,0.1).qty-200)<1e-9);});
 test('knob: shorts off',()=>{L.setConfig({shortsEnabled:false});A.equal(L.bestGuess({price:2,atr14:0.1,catalyst:'neg',btcRiskOff:true}).call,'STAND ASIDE');});
+test('fee venue: Public = 60/side + 15 RT spread => 135 bps RT',()=>{L.setConfig({feeVenue:'public'});const r=L.tradePnl({side:'long',entry:1,exit:1,qty:1000});A.ok(Math.abs(r.fees-13.5)<1e-9);
+ L.setConfig({});A.ok(Math.abs(L.tradePnl({side:'long',entry:1,exit:1,qty:1000}).fees-4)<1e-9);});
+test('public catalyst-sized gate',()=>{A.equal(L.publicSized(1.3,1.275,1.4,0.06),false);A.equal(L.publicSized(1.3,1.18,1.66,0.06),true);A.equal(L.publicSized(1.3,1.18,1.33,0.06),false);});

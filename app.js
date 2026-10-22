@@ -30,7 +30,7 @@ function render(){const C=XL.getConfig(),sh=shockNow();
  const g=XL.bestGuess({price:M.XRP,atr14:M.atr,btcLongOk:M.btcLongOk,btcRiskOff:M.btcRiskOff,catalyst:$('cat').value,shock:sh.shock,
    inSkip:XL.inSkip(today),openPos:!!S.pos,kill:losers>=C.killLosers,cooldown:S.lastLossMs&&Date.now()-S.lastLossMs<C.cooldownH*3600e3});
  $('guess').textContent=g.call;
- $('guessWhy').innerHTML=g.why.join('; ')+(g.entry?`<br>Entry ${f(g.entry)} · Stop ${f(g.stop)} · Trail ${f(g.trail)} (${C.trailAtrMult}×ATR) · Breakeven at ${f(g.breakevenAt)}`:'')+`<br>ATR(14) ${f(M.atr)} · BTC long filter ${M.btcLongOk??'n/a'} · risk-off ${M.btcRiskOff??'n/a'}`;
+ $('guessWhy').innerHTML=g.why.join('; ')+(g.entry?`<br>Entry ${f(g.entry)} · Stop ${f(g.stop)} · Trail ${f(g.trail)} (${C.trailAtrMult}×ATR) · Breakeven at ${f(g.breakevenAt)}<br>Public catalyst-sized (stop ≥1.5× daily ATR, target ≥3× RT cost): ${XL.publicSized(g.entry,g.stop,g.entry+3*(g.entry-g.stop),M.atr)?'YES':'NO — paper only'}`:'')+`<br>ATR(14) ${f(M.atr)} · BTC long filter ${M.btcLongOk??'n/a'} · risk-off ${M.btcRiskOff??'n/a'}`;
  // v2 desk chips (display only)
  $('guess').className='callbadge '+(/LONG/.test(g.call)?'c-long':/SHORT/.test(g.call)?'c-short':/EXIT/.test(g.call)?'c-exit':/HOLD/.test(g.call)?'c-hold':'c-aside');
  $('chXRP').className='hchg '+(M.xrp4h==null?'':M.xrp4h>=0?'up':'dn');
@@ -72,8 +72,9 @@ $('checksYes').onchange=psychOk;
 $('checks').onchange=psychOk;$('emo').onchange=psychOk;
 // ---------- journal ----------
 function renderJournal(){const J=S.journal,w=J.filter(j=>j.net>0).length,net=J.reduce((a,j)=>a+j.net,0),fees=J.reduce((a,j)=>a+j.fees,0);
+ const pubNet=J.reduce((s,j)=>s+XL.tradePnl({side:j.side,entry:j.entry,exit:j.exit,qty:j.qty,feeBps:XL.sideBps('public')}).net,0),pubW=J.filter(j=>XL.tradePnl({side:j.side,entry:j.entry,exit:j.exit,qty:j.qty,feeBps:XL.sideBps('public')}).net>0).length;
  const st=(l,v,c='')=>`<div class="stat ${c}"><small>${l}</small><b>${v}</b></div>`;
- $('stats').innerHTML=st('NAV (fake)','$'+f(S.nav,2))+st('Net P/L','$'+f(net,2),net>0?'up':net<0?'dn':'')+st('W – L (fee-net)',w+' – '+(J.length-w))+st('Fees paid','$'+f(fees,2))+`<div class="note">${J.length} trades · Build ${APP_VERSION} · edge_claimed=false — a record, not proof of an edge.</div>`;
+ $('stats').innerHTML=st('NAV (fake)','$'+f(S.nav,2))+st('Net P/L','$'+f(net,2),net>0?'up':net<0?'dn':'')+st('W – L (fee-net)',w+' – '+(J.length-w))+st('Fees paid','$'+f(fees,2))+st('Net @ Public cost','$'+f(pubNet,2),pubNet>0?'up':pubNet<0?'dn':'')+st('W – L @ Public',pubW+' – '+(J.length-pubW))+`<div class="note">${J.length} trades · venue: ${XL.getConfig().feeVenue==='public'?'Public':'Desk'} · Build ${APP_VERSION} · edge_claimed=false — a record, not proof of an edge.</div>`;
  $('jlist').innerHTML=J.slice().reverse().map(j=>`<div class="trow"><div><b>${j.side.toUpperCase()}</b> ${f(j.entry)} → ${f(j.exit)}<small>${new Date(j.close).toLocaleString()} · ${j.why}</small></div><div class="${j.net>0?'up':'dn'}">$${f(j.net,2)}<small>fees $${f(j.fees,2)}</small></div></div>`).join('')||'<div class="empty">No paper trades yet.</div>';}
 $('exportJ').onclick=()=>{const h='open,close,side,entry,exit,qty,gross,fees,net,why,emo';const csv=[h,...S.journal.map(j=>h.split(',').map(k=>JSON.stringify(j[k]??'')).join(','))].join('\n');navigator.clipboard?.writeText(csv);alert('Journal copied.');};
 // ---------- knobs ----------
@@ -81,20 +82,20 @@ const KN=[['coolOffMin','Dire-news cool-off (min)',0,240,5,'dial'],['shockBtcPct
  ['shockWindowH','Shock window (hours)',1,24,1],['feeBpsSide','Fee bps per side',0,100,1],['slippageBps','Event slippage bps/side',0,50,1],['riskPct','Risk per idea % NAV',0.25,2,0.25],
  ['grossCapPct','Gross cap % NAV',5,50,1],['atrMult','Stop distance (× ATR14)',1,4,0.1],['trailAtrMult','Trailing stop (× ATR14)',0.5,4,0.1],['breakevenR','Breakeven trigger (R multiple)',0.5,3,0.1],
  ['timeStopSessions','Time stop (sessions, max 10)',1,10,1],['volTrapH','Bad-news volume trap window (h)',1,12,1],['volTrapZ','Volume trap z-score',1.5,5,0.1],['killLosers','Kill switch: losers in a row',2,10,1],
- ['cooldownH','Post-loss cooldown (h)',0,72,1],['etfStreakDays','ETF inflow streak (days)',2,10,1],['bankroll','Starting fake bankroll $',100,10000,100]];
+ ['cooldownH','Post-loss cooldown (h)',0,72,1],['etfStreakDays','ETF inflow streak (days)',2,10,1],['publicFeeBpsSide','Public fee bps per side',0,150,5],['publicSpreadBps','Public spread bps (round trip)',0,50,1],['bankroll','Starting fake bankroll $',100,10000,100]];
 function setK(k,v){const c=Object.assign({},XL.getConfig(),{[k]:v});XL.setConfig(c);save('knobs',c);paintK();render();}
 function paintK(){const C=XL.getConfig();KN.forEach(([k,,lo,hi])=>{const s=$('s_'+k);if(s){s.value=C[k];$('v_'+k).textContent=C[k];}
-  const d=$('d_'+k);if(d){const a=-135+270*(C[k]-lo)/(hi-lo);d.querySelector('line').setAttribute('transform',`rotate(${a} 45 45)`);d.querySelector('.dv').textContent=C[k];}});$('s_shorts').checked=C.shortsEnabled;}
-$('sliders').innerHTML=KN.map(([k,l,lo,hi,st])=>`<div class="knob">${l}<span class="v" id="v_${k}"></span><input type="range" id="s_${k}" min="${lo}" max="${hi}" step="${st}"></div>`).join('')+'<label><input type="checkbox" id="s_shorts"> Shorts enabled</label>';
+  const d=$('d_'+k);if(d){const a=-135+270*(C[k]-lo)/(hi-lo);d.querySelector('line').setAttribute('transform',`rotate(${a} 45 45)`);d.querySelector('.dv').textContent=C[k];}});$('s_shorts').checked=C.shortsEnabled;$('s_venue').value=C.feeVenue;}
+$('sliders').innerHTML=KN.map(([k,l,lo,hi,st])=>`<div class="knob">${l}<span class="v" id="v_${k}"></span><input type="range" id="s_${k}" min="${lo}" max="${hi}" step="${st}"></div>`).join('')+'<label><input type="checkbox" id="s_shorts"> Shorts enabled</label><div class="knob">Fee venue<select id="s_venue"><option value="desk">Desk — 20 bps/side (40 RT)</option><option value="public">Public — 60 bps/side + spread (135 RT)</option></select></div>';
 $('dials').innerHTML=KN.filter(x=>x[5]).map(([k,l])=>`<div class="dial" id="d_${k}"><svg viewBox="0 0 90 90"><circle cx="45" cy="45" r="38" fill="#0e1730" stroke="#2b6cff" stroke-width="4"/><line x1="45" y1="45" x2="45" y2="12" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg><div class="dv"></div><div class="small">${l}</div></div>`).join('');
 KN.forEach(([k,,lo,hi,st,t])=>{$('s_'+k).oninput=e=>setK(k,+e.target.value);
  if(t){const d=$('d_'+k);let y0,v0;d.onpointerdown=e=>{d.setPointerCapture(e.pointerId);y0=e.clientY;v0=XL.getConfig()[k];};
   d.onpointermove=e=>{if(y0==null)return;let v=v0+Math.round((y0-e.clientY)/6)*st;v=Math.min(hi,Math.max(lo,+v.toFixed(2)));if(v!==XL.getConfig()[k])setK(k,v);};d.onpointerup=()=>y0=null;}});
-$('s_shorts').onchange=e=>setK('shortsEnabled',e.target.checked);
+$('s_shorts').onchange=e=>setK('shortsEnabled',e.target.checked);$('s_venue').onchange=e=>setK('feeVenue',e.target.value);
 $('reset').onclick=()=>{if(confirm('Reset all knobs to desk defaults?')){LS.removeItem('knobs');XL.setConfig({});paintK();render();}};
 // ---------- nav / boot ----------
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab,nav button').forEach(x=>x.classList.remove('on'));$(b.dataset.t).classList.add('on');b.classList.add('on');});
-const APP_VERSION='v5';
+const APP_VERSION='v6';
 if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update();document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update();});});
  let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded||sessionStorage.getItem('swr')===APP_VERSION)return;reloaded=true;sessionStorage.setItem('swr',APP_VERSION);location.reload();});}
 paintK();refresh();setInterval(refresh,5*60e3);
