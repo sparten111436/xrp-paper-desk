@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="XRP Paper"><link rel="apple-touch-icon" href="icon-180.png"><link rel="manifest" href="manifest.json">
+<title>XRP Paper Desk</title><link rel="stylesheet" href="style.css"></head><body>
+<header><b>XRP Paper Desk</b><span class="badge">PAPER ONLY · edge_claimed=false</span></header>
+<main>
+<section id="desk" class="tab on">
+ <div class="card"><div class="row"><div>XRP <b id="pxXRP">…</b></div><div>BTC <b id="pxBTC">…</b></div></div>
+  <div class="row small"><span id="chXRP"></span><span id="chBTC"></span></div>
+  <label class="small">S&amp;P futures % today (no free CORS feed — enter by hand, blank = unavailable)
+   <input id="spx" type="number" step="0.1" inputmode="decimal" placeholder="e.g. -0.4"></label>
+  <div id="shock" class="pill"></div><button id="refresh">Refresh prices</button><div class="small" id="upd"></div></div>
+ <div class="card"><h2>Today's best guess</h2>
+  <label>Confirmed catalyst <select id="cat"><option value="">none</option><option value="pos">positive (primary source)</option><option value="neg">negative (primary source)</option><option value="reversed">thesis reversed</option></select></label>
+  <div id="guess" class="big"></div><div id="guessWhy" class="small"></div></div>
+ <div class="card"><h2>Position (paper)</h2><div id="pos"></div>
+  <div class="row"><button id="goLong">Paper LONG</button><button id="goShort">Paper SHORT</button></div>
+  <div class="row"><button id="tryExit" class="warn">Exit</button><button id="stopHit">Stop hit</button></div><div id="exitMsg" class="small"></div></div>
+</section>
+<section id="news" class="tab"><div class="card"><h2>Add a headline</h2>
+ <input id="nh" placeholder="Headline"><input id="nu" placeholder="Source URL (primary)">
+ <label><input type="checkbox" id="nscary"> Scary / dire</label><label><input type="checkbox" id="nhigh"> High-severity, XRP-specific (real event)</label>
+ <button id="addNews">Log headline</button><div id="newsMsg" class="small"></div></div><div class="card"><h2>Log</h2><div id="newsList"></div></div></section>
+<section id="psych" class="tab"><div class="card"><h2>FOMO / psych checklist</h2><p class="small">Required before every entry or exit.</p><div id="checks"></div>
+ <label>Emotion <select id="emo"><option>calm</option><option>anxious</option><option>excited</option><option>revenge</option><option>fearful</option></select></label>
+ <div id="psychMsg" class="small"></div></div></section>
+<section id="journal" class="tab"><div class="card"><h2>Fee-net journal</h2><div id="stats"></div><div id="jlist"></div><button id="exportJ">Copy journal (CSV)</button></div></section>
+<section id="knobs" class="tab"><div class="card"><h2>Tuning knobs</h2><p class="small">Paper only. Changes apply live and are saved on this phone. Desk rule: change knobs between runs; desk-default changes still need Warren's yes.</p>
+ <div id="dials" class="dials"></div><div id="sliders"></div><button id="reset" class="warn">Reset to desk defaults</button></div></section>
+</main>
+<nav><button data-t="desk" class="on">Desk</button><button data-t="news">News</button><button data-t="psych">Psych</button><button data-t="journal">Journal</button><button data-t="knobs">Knobs</button></nav>
+<footer class="small">Simulation &amp; education only. Not financial advice. No exchange keys, no live orders.</footer>
+<script src="logic.js"></script><script src="app.js"></script></body></html>

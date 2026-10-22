@@ -1,0 +1,14 @@
+*{box-sizing:border-box}body{margin:0;font:17px -apple-system,system-ui,sans-serif;background:#0b1220;color:#e8eef9;padding:env(safe-area-inset-top) 0 90px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#111a2e;position:sticky;top:0;z-index:2}
+.badge{font-size:11px;background:#2a3b1f;color:#b8f08a;padding:3px 7px;border-radius:8px}
+.card{background:#141f36;margin:12px;padding:14px;border-radius:14px}h2{font-size:18px;margin:0 0 8px}
+.row{display:flex;gap:10px;justify-content:space-between}.small{font-size:13px;color:#9fb0cc}.big{font-size:26px;font-weight:700;margin:8px 0}
+button{flex:1;font-size:17px;padding:12px;margin:6px 0;border:0;border-radius:12px;background:#2b6cff;color:#fff;min-height:44px}button.warn{background:#a33}
+input,select{width:100%;font-size:17px;padding:10px;margin:6px 0;border-radius:10px;border:1px solid #33456b;background:#0e1730;color:#fff}
+input[type=checkbox]{width:auto;transform:scale(1.4);margin-right:10px}input[type=range]{padding:0;height:36px}
+.pill{padding:8px;border-radius:10px;margin:8px 0;font-weight:600}.ok{background:#173d24}.bad{background:#5a1a1a}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#111a2e;padding-bottom:env(safe-area-inset-bottom)}nav button{background:none;border-radius:0;font-size:14px;margin:0}nav button.on{color:#7fb0ff;font-weight:700}
+.tab{display:none}.tab.on{display:block}footer{text-align:center;padding:8px}
+.knob{margin:10px 0}.knob .v{float:right;font-weight:700;color:#fff}
+.dials{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-around}.dial{width:100px;text-align:center;touch-action:none}.dial svg{width:90px;height:90px}
+.j{border-top:1px solid #26365a;padding:6px 0;font-size:14px}.win{color:#7ee08f}.loss{color:#ff8a8a}

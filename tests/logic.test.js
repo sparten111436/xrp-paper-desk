@@ -1,0 +1,27 @@
+const test=require('node:test'),A=require('node:assert/strict'),L=require('../logic.js');
+test.beforeEach(()=>L.setConfig({}));
+test('shock gate thresholds',()=>{A.equal(L.priceShock(-1.8,-2.3,-0.2).shock,false);A.equal(L.priceShock(-3,0,0).shock,true);
+ A.equal(L.priceShock(0,-8.5,null).shock,true);A.equal(L.priceShock(0,0,-1.5).shock,true);A.ok(L.priceShock(0,0,null).notes.includes('spx_unavailable'));});
+test('chg4h uses window',()=>{A.equal(L.chg4h([100,1,1,1,96]).toFixed(1),'-4.0');A.equal(L.chg4h([1,2,3]),null);});
+test('cool-off blocks panic exit 60 min, exceptions pass',()=>{const t=Date.now(),s=t-30*60000;
+ A.equal(L.exitAllowed({nowMs:t,lastScaryMs:s}).ok,false);A.equal(L.exitAllowed({nowMs:t,lastScaryMs:s,stopHit:true}).ok,true);
+ A.equal(L.exitAllowed({nowMs:t,lastScaryMs:s,marketShock:true}).ok,true);A.equal(L.exitAllowed({nowMs:t,lastScaryMs:s,xrpSpecificHighSev:true}).ok,true);
+ A.equal(L.exitAllowed({nowMs:t,lastScaryMs:t-61*60000}).ok,true);});
+test('relevance + counts',()=>{A.equal(L.relevance('Wallet maker confirms $90M theft'),'not-XRP');A.equal(L.relevance('Ripple wins ruling'),'xrp');
+ A.equal(L.relevance('Binance hacked for $400M'),'market-shock');A.equal(L.counts('Random altcoin hack',null,false),false);A.equal(L.counts('Random altcoin hack',null,true),true);});
+test('dedupe same story across outlets',()=>{const p=[{headline:'SEC drops appeal in Ripple XRP case',url:'a',time:'2026-10-22T10:00:00Z'}];
+ A.equal(L.findDupe({headline:'SEC drops its appeal in Ripple XRP case, filings show',url:'b',time:'2026-10-22T12:00:00Z'},p),'a');
+ A.equal(L.findDupe({headline:'Coinbase lists new token',url:'c',time:'2026-10-22T12:00:00Z'},p),'');});
+test('fee math 20bps/side',()=>{const r=L.tradePnl({side:'long',entry:2,exit:2.006,qty:100});A.ok(Math.abs(r.fees-0.8012)<1e-9);A.equal(r.win,false);
+ A.ok(L.tradePnl({side:'short',entry:2,exit:1.9,qty:100}).net>9);});
+test('best guess defaults stand aside; long with catalyst',()=>{A.equal(L.bestGuess({price:2,atr14:0.1}).call,'STAND ASIDE');
+ const g=L.bestGuess({price:2,atr14:0.1,catalyst:'pos',btcLongOk:true});A.equal(g.call,'LEAN LONG');A.ok(Math.abs(g.stop-1.8)<1e-9);
+ A.equal(L.bestGuess({price:2,atr14:0.1,openPos:true,shock:true}).call,'EXIT');A.equal(L.EDGE_CLAIMED,false);});
+// knob tests
+test('knob: BTC shock 3->5% stops -4% firing',()=>{A.equal(L.priceShock(-4,0,0).shock,true);L.setConfig({shockBtcPct:5});A.equal(L.priceShock(-4,0,0).shock,false);});
+test('knob: window 4h->2h changes chg',()=>{L.setConfig({shockWindowH:2});A.equal(L.chg4h([100,1,50,1,48]).toFixed(1),'-4.0');});
+test('knob: cool-off 60->30 min',()=>{const t=Date.now();A.equal(L.exitAllowed({nowMs:t,lastScaryMs:t-45*60000}).ok,false);L.setConfig({coolOffMin:30});A.equal(L.exitAllowed({nowMs:t,lastScaryMs:t-45*60000}).ok,true);});
+test('knob: ATR mult 2->3 widens stop; trail knob',()=>{L.setConfig({atrMult:3,trailAtrMult:1.5});const g=L.bestGuess({price:2,atr14:0.1,catalyst:'pos',btcLongOk:true});A.ok(Math.abs(g.stop-1.7)<1e-9);A.ok(Math.abs(g.trail-0.15)<1e-9);});
+test('knob: fee bps and risk %',()=>{L.setConfig({feeBpsSide:50});A.ok(Math.abs(L.tradePnl({side:'long',entry:1,exit:1,qty:100}).fees-1)<1e-9);
+ L.setConfig({riskPct:2});A.ok(Math.abs(L.size(1000,1,0.1).qty-200)<1e-9);});
+test('knob: shorts off',()=>{L.setConfig({shortsEnabled:false});A.equal(L.bestGuess({price:2,atr14:0.1,catalyst:'neg',btcRiskOff:true}).call,'STAND ASIDE');});
