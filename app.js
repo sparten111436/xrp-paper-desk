@@ -21,8 +21,8 @@ async function refresh(){$('upd').textContent='Loading…';
 // ---------- desk ----------
 function shockNow(){const v=$('spx').value;return XL.priceShock(M.btc4h,M.xrp4h,v===''?null:+v);}
 function render(){const C=XL.getConfig(),sh=shockNow();
- $('pxXRP').textContent='$'+f(M.XRP);$('pxBTC').textContent='$'+f(M.BTC,0);
- $('chXRP').textContent=`XRP ${C.shockWindowH}h ${f(M.xrp4h,2)}%`;$('chBTC').textContent=`BTC ${C.shockWindowH}h ${f(M.btc4h,2)}%`;
+ $('pxXRP').textContent='$'+f(M.XRP);$('pxBTC').textContent='BTC $'+f(M.BTC,0);
+ $('chXRP').textContent=`${M.xrp4h>0?'+':''}${f(M.xrp4h,2)}% · ${C.shockWindowH}h`;$('chBTC').textContent=`${f(M.btc4h,1)}%`;
  $('shock').className='pill '+(sh.shock?'bad':'ok');
  $('shock').textContent=sh.shock?'MARKET SHOCK: '+sh.fires.join('; '):`No shock (BTC ≤−${C.shockBtcPct}% / XRP ≤−${C.shockXrpPct}% / S&P fut ≤−${C.shockSpxPct}%)`+(sh.notes.length?' · '+sh.notes.join(', '):'');
  const losers=(()=>{let n=0;for(const j of [...S.journal].reverse()){if(j.net<=0)n++;else break}return n})();
@@ -31,6 +31,13 @@ function render(){const C=XL.getConfig(),sh=shockNow();
    inSkip:XL.inSkip(today),openPos:!!S.pos,kill:losers>=C.killLosers,cooldown:S.lastLossMs&&Date.now()-S.lastLossMs<C.cooldownH*3600e3});
  $('guess').textContent=g.call;
  $('guessWhy').innerHTML=g.why.join('; ')+(g.entry?`<br>Entry ${f(g.entry)} · Stop ${f(g.stop)} · Trail ${f(g.trail)} (${C.trailAtrMult}×ATR) · Breakeven at ${f(g.breakevenAt)}`:'')+`<br>ATR(14) ${f(M.atr)} · BTC long filter ${M.btcLongOk??'n/a'} · risk-off ${M.btcRiskOff??'n/a'}`;
+ // v2 desk chips (display only)
+ $('guess').className='callbadge '+(/LONG/.test(g.call)?'c-long':/SHORT/.test(g.call)?'c-short':/EXIT/.test(g.call)?'c-exit':/HOLD/.test(g.call)?'c-hold':'c-aside');
+ $('chXRP').className='hchg '+(M.xrp4h==null?'':M.xrp4h>=0?'up':'dn');
+ $('chipShock').textContent=sh.shock?'⚠️ Shock ON':'✅ No shock';$('chipShock').className='chip '+(sh.shock?'bad':'ok');
+ const sc=S.news.filter(n=>n.scary&&!n.dupeOf).at(-1),left=sc?Math.ceil((C.coolOffMin*60000-(Date.now()-sc.ms))/60000):0;
+ $('chipCool').textContent=left>0?`⏳ Cool-off ${left}m`:'Cool-off clear';$('chipCool').className='chip '+(left>0?'warnc':'ok');
+ $('chipBTC').className='chip';
  const p=S.pos;$('pos').innerHTML=p?`${p.side.toUpperCase()} ${f(p.qty,1)} XRP @ ${f(p.entry)} · stop ${f(p.stop)} · opened ${new Date(p.t).toLocaleString()}`:`Flat · NAV $${f(S.nav,2)} (fake)`;
  renderNews();renderJournal();}
 function psychOk(){const bad=[...document.querySelectorAll('#checks input')].filter(c=>c.dataset.need==='yes'?!c.checked:c.checked);

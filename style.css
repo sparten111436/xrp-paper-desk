@@ -12,3 +12,25 @@ nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#111a2e;paddi
 .knob{margin:10px 0}.knob .v{float:right;font-weight:700;color:#fff}
 .dials{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-around}.dial{width:100px;text-align:center;touch-action:none}.dial svg{width:90px;height:90px}
 .j{border-top:1px solid #26365a;padding:6px 0;font-size:14px}.win{color:#7ee08f}.loss{color:#ff8a8a}
+/* ---- Desk v2 (roomier) ---- */
+body{font-size:18px;line-height:1.45}
+#desk{padding:4px 0 calc(190px + env(safe-area-inset-bottom))}
+.hero{margin:16px;padding:26px 22px;border-radius:22px;background:linear-gradient(160deg,#18284a,#101a30);text-align:center}
+.hlabel{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#a9bbd9}
+.hprice{font-size:52px;font-weight:800;margin:6px 0 2px;color:#fff}
+.hchg{font-size:20px;font-weight:600;color:#c9d6ee}.hchg.up{color:#7ee08f}.hchg.dn{color:#ff9a9a}
+.callbadge{display:inline-block;margin:10px 0 12px;padding:14px 26px;border-radius:999px;font-size:26px;font-weight:800;color:#fff;background:#3a4a6b}
+.c-long{background:#1f8a4c}.c-short{background:#b8432f}.c-exit{background:#c0392b}.c-hold{background:#2b6cff}.c-aside{background:#5b6680}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin:4px 16px 8px}
+.chip{padding:10px 14px;border-radius:999px;background:#1b2945;font-size:16px;font-weight:600;color:#e8eef9}
+.chip.ok{background:#173d24;color:#bff5cc}.chip.bad{background:#6a1f1f;color:#ffd3d3}.chip.warnc{background:#5a4512;color:#ffe7a6}
+.plabel{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:#a9bbd9;margin-bottom:6px}.posline{font-size:18px}
+#desk .card{margin:14px 16px;padding:18px;border-radius:18px}
+.sec{margin:12px 16px;background:#141f36;border-radius:16px;padding:4px 18px}
+.sec summary{font-size:18px;font-weight:600;padding:14px 0;cursor:pointer;list-style:none}.sec summary::after{content:'＋';float:right;color:#7fb0ff}
+.sec[open] summary::after{content:'－'}.sec[open]{padding-bottom:14px}.why{line-height:1.6;font-size:15px}
+.exitmsg{margin:8px 20px}
+.tradebar{position:fixed;left:0;right:0;bottom:calc(52px + env(safe-area-inset-bottom));padding:12px 16px 10px;background:rgba(11,18,32,.96);border-top:1px solid #22324f;z-index:3}
+.tradebar .row{gap:14px}.tradebar button{min-height:56px;font-size:19px;font-weight:700;border-radius:16px;margin:5px 0}
+button.long{background:#1f8a4c}button.short{background:#b8432f}button.ghost{background:#26365a}
+nav button{min-height:52px;font-size:15px}

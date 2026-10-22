@@ -6,17 +6,27 @@
 <header><b>XRP Paper Desk</b><span class="badge">PAPER ONLY · edge_claimed=false</span></header>
 <main>
 <section id="desk" class="tab on">
- <div class="card"><div class="row"><div>XRP <b id="pxXRP">…</b></div><div>BTC <b id="pxBTC">…</b></div></div>
-  <div class="row small"><span id="chXRP"></span><span id="chBTC"></span></div>
-  <label class="small">S&amp;P futures % today (no free CORS feed — enter by hand, blank = unavailable)
-   <input id="spx" type="number" step="0.1" inputmode="decimal" placeholder="e.g. -0.4"></label>
-  <div id="shock" class="pill"></div><button id="refresh">Refresh prices</button><div class="small" id="upd"></div></div>
- <div class="card"><h2>Today's best guess</h2>
-  <label>Confirmed catalyst <select id="cat"><option value="">none</option><option value="pos">positive (primary source)</option><option value="neg">negative (primary source)</option><option value="reversed">thesis reversed</option></select></label>
-  <div id="guess" class="big"></div><div id="guessWhy" class="small"></div></div>
- <div class="card"><h2>Position (paper)</h2><div id="pos"></div>
-  <div class="row"><button id="goLong">Paper LONG</button><button id="goShort">Paper SHORT</button></div>
-  <div class="row"><button id="tryExit" class="warn">Exit</button><button id="stopHit">Stop hit</button></div><div id="exitMsg" class="small"></div></div>
+ <div class="hero">
+  <div class="hlabel">XRP / USD</div>
+  <div class="hprice" id="pxXRP">…</div>
+  <div class="hchg" id="chXRP"></div>
+  <div class="hlabel" style="margin-top:18px">Today's best guess</div>
+  <div id="guess" class="callbadge">…</div>
+  <div class="small" id="upd"></div>
+ </div>
+ <div class="chips"><span class="chip" id="chipShock">Shock …</span><span class="chip" id="chipCool">Cool-off …</span><span class="chip" id="chipBTC"><span id="pxBTC">…</span> <span id="chBTC"></span></span></div>
+ <div class="card"><div class="plabel">Paper position</div><div id="pos" class="posline"></div></div>
+ <details class="sec"><summary>Market shock check</summary><div id="shock" class="pill"></div>
+  <label class="small">S&amp;P futures % today (no free feed — type it in; blank = unavailable)
+   <input id="spx" type="number" step="0.1" inputmode="decimal" placeholder="e.g. -0.4"></label></details>
+ <details class="sec"><summary>Catalyst</summary><label class="small">Confirmed catalyst (primary source only)
+  <select id="cat"><option value="">none</option><option value="pos">positive (primary source)</option><option value="neg">negative (primary source)</option><option value="reversed">thesis reversed</option></select></label></details>
+ <details class="sec"><summary>Why this call · rule details</summary><div id="guessWhy" class="small why"></div><button id="refresh" class="ghost">Refresh prices</button></details>
+ <div id="exitMsg" class="small exitmsg"></div>
+ <div class="tradebar">
+  <div class="row"><button id="goLong" class="long">Paper LONG</button><button id="goShort" class="short">Paper SHORT</button></div>
+  <div class="row"><button id="tryExit" class="warn">Exit</button><button id="stopHit" class="ghost">Stop hit</button></div>
+ </div>
 </section>
 <section id="news" class="tab"><div class="card"><h2>Add a headline</h2>
  <input id="nh" placeholder="Headline"><input id="nu" placeholder="Source URL (primary)">
