@@ -70,7 +70,7 @@ $('checks').innerHTML=CHECKS.map(([l,n],i)=>`<label><input type="checkbox" data-
 $('checks').onchange=psychOk;$('emo').onchange=psychOk;
 // ---------- journal ----------
 function renderJournal(){const J=S.journal,w=J.filter(j=>j.net>0).length,net=J.reduce((a,j)=>a+j.net,0),fees=J.reduce((a,j)=>a+j.fees,0);
- $('stats').innerHTML=`Trades ${J.length} · fee-net W/L ${w}/${J.length-w} · Net $${f(net,2)} · Fees $${f(fees,2)} · NAV $${f(S.nav,2)} (fake)<br><span class="small">edge_claimed=false — W/L is a record, not proof of an edge.</span>`;
+ $('stats').innerHTML=`Trades ${J.length} · fee-net W/L ${w}/${J.length-w} · Net $${f(net,2)} · Fees $${f(fees,2)} · NAV $${f(S.nav,2)} (fake)<br><span class="small">Build '+APP_VERSION+' · edge_claimed=false — W/L is a record, not proof of an edge.</span>`;
  $('jlist').innerHTML=J.slice().reverse().map(j=>`<div class="j ${j.net>0?'win':'loss'}">${j.side} ${f(j.entry)}→${f(j.exit)} net $${f(j.net,2)} (fees $${f(j.fees,2)}) · ${j.why}</div>`).join('');}
 $('exportJ').onclick=()=>{const h='open,close,side,entry,exit,qty,gross,fees,net,why,emo';const csv=[h,...S.journal.map(j=>h.split(',').map(k=>JSON.stringify(j[k]??'')).join(','))].join('\n');navigator.clipboard?.writeText(csv);alert('Journal copied.');};
 // ---------- knobs ----------
@@ -91,7 +91,9 @@ $('s_shorts').onchange=e=>setK('shortsEnabled',e.target.checked);
 $('reset').onclick=()=>{if(confirm('Reset all knobs to desk defaults?')){LS.removeItem('knobs');XL.setConfig({});paintK();render();}};
 // ---------- nav / boot ----------
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab,nav button').forEach(x=>x.classList.remove('on'));$(b.dataset.t).classList.add('on');b.classList.add('on');});
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+const APP_VERSION='v4';
+if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update();document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update();});});
+ let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded||sessionStorage.getItem('swr')===APP_VERSION)return;reloaded=true;sessionStorage.setItem('swr',APP_VERSION);location.reload();});}
 paintK();refresh();setInterval(refresh,5*60e3);
 // ---------- launch splash (once per launch; UI only) ----------
 (function(){const sp=$('splash'),fl=$('flyer'),dk=$('dock');
